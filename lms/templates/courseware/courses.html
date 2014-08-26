@@ -1,0 +1,72 @@
+<%! from django.utils.translation import ugettext as _ %>
+<%! from courseware.courses import course_image_url, get_course_about_section %>
+<%! from status.status import get_site_status_msg %>
+<%! from courseware.views import major_search %>
+
+<%inherit file="../main.html" />
+
+<%namespace name='static' file='../static_content.html'/>
+
+<%block name="pagetitle">${_("Courses")}</%block>
+<%! from microsite_configuration import microsite %>
+
+<%MAJOR=['Architecture','IAAS','Art-culture','Biology-life-sciences','Business-management','Chemistry','Communication','Computer-science']%>
+<%GRADE=['初级','中级','高级','其他']%>
+
+<section class="find-courses" xmlns="http://www.w3.org/1999/html">
+<%
+  course_index_overlay_text = microsite.get_value('course_index_overlay_text', _("Explore free courses from leading universities."))
+
+  # not sure why this is, but if I use static.url('images/edx_bw.png') then the HTML rendering
+  # of this template goes wonky
+
+  logo_file = microsite.get_value(
+    'course_index_overlay_logo_file', settings.STATIC_URL + 'images/edx_bw.png')
+%>
+
+  <section class="container">
+     <div style="margin-top: 20px">
+         <h1><b><font size="20">${len(courses)}+的课程，造就你的云梦想！</font></b></h1>
+     </div>
+
+     <ul style="list-style:none;background: #e09b9f">
+                        <form id="search_form" method="post" action="/major_search">
+                        <li style="list-style:none;float:left;width:45%;">
+                        <select id="major" name="major_name" style="height: 27px;width: 180px;" >
+                        <option value="">专业</option>
+                        %for major in MAJOR:
+                        <option value="${major}">${major}</option>
+                        %endfor
+                        </select>
+                        <select id="grade" name="grade" style="height: 27px;width: 180px" >
+                        <option value="">等级</option>
+                        %for grade in GRADE:
+                        <option value="${grade}">${grade}</option>
+                        %endfor
+                        </select>
+                        </li>
+
+                        <li style="list-style:none;float:left;width:55%;">
+                            <input type="text" name="search" value="" style="height:27px;width: 592px"/>
+                            <input type="hidden" name="csrfmiddlewaretoken" value="${ csrf_token }">
+                            <!--<a href="${marketing_link('COURSES')}" style="padding:0;width:27px;height:24px"><img src="http://files.jb51.net/demoimg/200912/btn_search_box.gif"/></a>-->
+                            <input type="submit" id="submit" value="" style="padding:0;width:27px;height:24px;background:url(http://files.jb51.net/demoimg/200912/btn_search_box.gif) no-repeat left top" />
+                        </li>
+                        </form>
+     </ul>
+  <section class="container">
+    <section class="courses">
+      <li class="courses-listing-item">
+        %for course in courses:
+          <!--%if get_course_about_section(course, 'university') == major_search(request).get('school'):-->
+            <ul class="courses-listing">
+              <%include file="../course.html" args="course=course"/>
+            </ul>
+          <!--%endif-->
+        %endfor
+      </li>
+    </section>
+  </section>
+</section>
+
+
